@@ -1,0 +1,16 @@
+--extra-index-url https://download.pytorch.org/whl/cu126
+open_clip_torch==2.31.0
+torch==2.6.0+cu126
+torchvision==0.21.0+cu126
+torchaudio==2.6.0+cu126
+torchsummary==1.5.1
+tensorboard==2.19.0
+pandas==2.2.3
+matplotlib==3.10.0
+tqdm==4.67.1
+mne==1.9.0
+einops==0.8.1
+reformer-pytorch==1.4.4
+scikit-learn==1.6.1
+transformers==4.49.0
+opencv-python==4.11.0.86
