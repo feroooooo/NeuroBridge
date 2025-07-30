@@ -76,7 +76,7 @@ class RandomSmooth:
 
 class RandomApply:
     """
-    给定一个 transform(增强)，以概率 p 随机执行该 transform， 否则不执行。
+    Randomly apply a given transform to the EEG data with a probability p.
     """
     def __init__(self, transform, p=0.5):
         self.transform = transform
