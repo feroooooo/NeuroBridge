@@ -1,10 +1,12 @@
 import numpy as np
 import random
 
+# Use English instead of Chinese comments
+
 class RandomTimeShift:
     """
-    在时间维度 (axis=-1) 上进行随机平移。
-    max_shift 表示最大平移量（向前或向后），单位是采样点。
+    Randomly shift the EEG signal along the time axis (axis=-1).
+    max_shift indicates the maximum shift amount (forward or backward), in terms of number of samples.
     """
     def __init__(self, max_shift=5):
         self.max_shift = max_shift
@@ -19,8 +21,8 @@ class RandomTimeShift:
 
 class RandomGaussianNoise:
     """
-    在 EEG 信号中添加随机高斯噪声。
-    std 表示噪声标准差。
+    Adds random Gaussian noise to the EEG signal.
+    std indicates the standard deviation of the noise.
     """
     def __init__(self, std=0.01):
         self.std = std
@@ -32,18 +34,18 @@ class RandomGaussianNoise:
 
 class RandomChannelDropout:
     """
-    随机丢弃一部分通道（置为 0）。
-    drop_prob 表示丢弃某个通道的概率。
-    假设 eeg_data shape: (channel, time) 或 (channel, time, ...)。
+    Randomly drop some channels (set them to zero).
+    drop_prob indicates the probability of dropping a channel.
+    Assume eeg_data shape: (channel, time) or (channel, time, ...).
     """
     def __init__(self, drop_prob=0.1):
         self.drop_prob = drop_prob
 
     def __call__(self, eeg_data: np.ndarray) -> np.ndarray:
-        # 假设第一个维度是通道维度
+        # Assuming the first dimension is the channel dimension
         channels = eeg_data.shape[0]
         for ch in range(channels):
-            # 以 drop_prob 的概率将该通道置零
+            # Randomly decide whether to drop this channel
             if random.random() < self.drop_prob:
                 eeg_data[ch] = 0
         return eeg_data
@@ -51,8 +53,8 @@ class RandomChannelDropout:
 
 class RandomSmooth:
     """
-    简单的平滑操作，可理解为在时间轴上做一个简单卷积 / 移动平均。
-    kernel_size 表示移动平均核的大小
+    A simple smoothing operation, which can be understood as a simple convolution / moving average along the time axis.
+    kernel_size indicates the size of the moving average kernel.
     """
     def __init__(self, kernel_size=5, smooth_prob=0.5):
         self.kernel_size = kernel_size
@@ -61,7 +63,7 @@ class RandomSmooth:
     def __call__(self, eeg_data: np.ndarray) -> np.ndarray:
         ch, time_len = eeg_data.shape
         smoothed = np.copy(eeg_data)
-        # 对每个通道在时间维度做移动平均
+        # Ensure kernel size is odd
         for c in range(ch):
             if np.random.rand() < self.smooth_prob:
                 for t in range(time_len):

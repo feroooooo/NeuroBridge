@@ -55,11 +55,11 @@ class HorizontalFlip:
         img = self.transform(img)
         return img
 
-# 保持分辨率不变，降低清晰度
+# Reduce resolution without changing the size
 class LowResolution:
     def __init__(self, scale=0.5):
         """
-        scale: 降低分辨率的比例，0.5表示将分辨率降低到原来的一半。
+        scale: The factor by which to reduce the resolution. For example, 0.5 means reducing the resolution to half of the original.
         """
         self.scale = scale
 
@@ -74,8 +74,8 @@ class LowResolution:
 class Mosaic:
     def __init__(self, mosaic_level=16):
         """
-        mosaic_level: 控制马赛克程度（块的大小），值越大，马赛克越粗糙。
-        典型值：8、16、32、64...
+        mosaic_level: Controls the level of mosaic (block size). The larger the value, the coarser the mosaic.
+        Typical values: 8, 16, 32, 64...
         """
         self.mosaic_level = mosaic_level
 
@@ -83,7 +83,7 @@ class Mosaic:
         img = np.array(img)
         h, w, _ = img.shape
 
-        # 缩小再放大以实现整图马赛克效果
+        # Resize the image to a smaller size and then back to the original size
         small = cv2.resize(img, (w // self.mosaic_level, h // self.mosaic_level), interpolation=cv2.INTER_LINEAR)
         mosaic_img = cv2.resize(small, (w, h), interpolation=cv2.INTER_NEAREST)
 
@@ -111,10 +111,10 @@ class GaussianBlur:
             img_np = cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
         
         if self.fluctuation_range > 0:
-            # 随机波动模糊核大小
+            # Randomly fluctuate the blur kernel size
             blur_kernel_size = random.randint(max(1, self.blur_kernel_size - self.fluctuation_range), 
                                               self.blur_kernel_size + self.fluctuation_range)
-            # 确保模糊核大小为奇数
+            # Ensure the kernel size is within a valid range
             if blur_kernel_size % 2 == 0:
                 blur_kernel_size += 1
         else:
@@ -128,35 +128,33 @@ class GaussianBlur:
 class GaussianNoise:
     def __init__(self, mean=0.0, std=10.0, fluctuation_range=0):
         """
-        添加高斯噪声的增强类。
+        Adds a Gaussian noise augmentation class.
 
         Args:
-            mean (float): 噪声的均值。
-            std (float): 噪声的标准差（幅度）。
+            mean (float): The mean of the noise.
+            std (float): The standard deviation (magnitude) of the noise.
         """
         self.mean = mean
         self.std = std
         self.fluctuation_range = fluctuation_range
 
     def __call__(self, img):
-        # 转为 NumPy 数组
         img_np = np.array(img).astype(np.float32)
         
         if self.fluctuation_range > 0:
-            # 随机波动标准差
-            # 确保标准差在合法范围内
+            # Randomly fluctuate the standard deviation
+            # Ensure the standard deviation is within a valid range
             std = random.randint(max(1, self.std - self.fluctuation_range), self.std + self.fluctuation_range)
         else:
             std = self.std
 
-        # 生成与图像相同形状的高斯噪声
+        # Generate Gaussian noise with the same shape as the image
         noise = np.random.normal(self.mean, std, img_np.shape).astype(np.float32)
 
-        # 将噪声叠加到原图，并裁剪到合法范围
+        # Add the noise to the image and clip the values to ensure they remain valid pixel values
         img_noisy = img_np + noise
         img_noisy = np.clip(img_noisy, 0, 255).astype(np.uint8)
 
-        # 转回 PIL Image 并返回
         return Image.fromarray(img_noisy)
 
 

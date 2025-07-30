@@ -2,9 +2,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
 def topk(matrix, k):
-    sorted_indices = np.argsort(-matrix, axis=1)  # 降序排序
-    rankings = np.argsort(sorted_indices, axis=1)  # 获取排名
-    diagonal_ranks = np.diag(rankings) + 1  # 由于索引是从0开始，+1 变为排名
+    sorted_indices = np.argsort(-matrix, axis=1)
+    rankings = np.argsort(sorted_indices, axis=1)
+    diagonal_ranks = np.diag(rankings) + 1
 
     count_k = 0
     count_1  = 0
