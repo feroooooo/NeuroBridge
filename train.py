@@ -18,7 +18,7 @@ import pandas as pd
 
 from module.dataset import EEGPreImageDataset
 from module.eeg_encoder.atm.atm import ATMS
-from module.eeg_encoder.model import EEGNet, EEGProject, TSConv
+from module.eeg_encoder.model import EEGNet, EEGProject, TSConv, EEGTransformer
 from module.loss import ContrastiveLoss
 from module.util import retrieve_all
 from module.projector import *
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     parser.add_argument('--time_window', type=int, default=[0, 250], nargs=2, help='time window for EEG data, in sample points')
     parser.add_argument('--eeg_aug', action='store_true')
     parser.add_argument('--eeg_aug_type', type=str, choices=['noise', 'time_shift', 'channel_dropout', 'smooth'], default='noise', help='eeg augmentation type')
-    parser.add_argument('--eeg_encoder_type', type=str, choices=['ATM', "EEGNet", "EEGProject", "TSConv", "EEGTransformer", "EEGTransformerLarge"], default='EEGProject')
+    parser.add_argument('--eeg_encoder_type', type=str, choices=['ATM', "EEGNet", "EEGProject", "TSConv", "EEGTransformer"], default='EEGProject')
     parser.add_argument('--image_aug', action='store_true')
     parser.add_argument('--image_test_aug', action='store_true')
     parser.add_argument('--eeg_test_aug', action='store_true')
@@ -150,7 +150,7 @@ if __name__ == '__main__':
     train_dataset = dataset
     log(f'data length: {len(dataset)}')
 
-    dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=True, num_workers=16)
+    dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=True, num_workers=12)
     
     test_dataset = EEGPreImageDataset(args.test_subject_ids, args.eeg_data_dir, args.brain_area, args.time_window, args.image_feature_dir, args.text_feature_dir, args.image_aug, args.aug_image_feature_dirs, True, False, eeg_transform, False, args.image_test_aug, args.eeg_test_aug)
     test_dataloader = DataLoader(test_dataset, batch_size=200, shuffle=False)
