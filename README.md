@@ -19,7 +19,7 @@ pip install -r requirements.txt
 ```
 
 ## Data Preparation
-Download the Things-Image from the [OSF repository](https://osf.io/y63gw/files/osfstorage) and Things-EEG from the [OSF repository](https://osf.io/anp5v/files/osfstorage). Organize the data according to the following directory structure:
+Download the Things-Image from the [OSF repository](https://osf.io/y63gw/files/osfstorage) and Things-EEG from the [OSF repository](https://osf.io/crxs4/). Organize the data according to the following directory structure:
 ```
 data
 ├── image_set
