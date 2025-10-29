@@ -2,28 +2,28 @@
 setlocal enabledelayedexpansion
 
 REM
-set "IMAGE_FEATURE_BASE_DIR=.\data\image_feature"
+set "IMAGE_FEATURE_BASE_DIR=.\data\image_feature_meg"
 set "IMAGE_ENCODER_TYPE=RN50"
 set "IMAGE_FEATURE_DIR=%IMAGE_FEATURE_BASE_DIR%\%IMAGE_ENCODER_TYPE%"
 set "TEXT_FEATURE_DIR="
-set "EEG_DATA_DIR=.\data\preprocessed_eeg"
+set "EEG_DATA_DIR=.\data\preprocessed_meg"
 set "DEVICE=cuda:0"
-set "EEG_ENCODER_TYPE=EEGProject"
+set "EEG_ENCODER_TYPE=TSConv"
 set "BATCH_SIZE=1024"
 set "LEARNING_RATE=1e-4"
 set "NUM_EPOCHS=50"
-set "BRAIN_AREA=o+p"
+set "BRAIN_AREA=all"
 set "PROJECTOR=linear"
 set "FEATURE_DIM=512"
-set "OUTPUT_DIR=.\results\intra_subjects_symmetry_loss"
+set "OUTPUT_DIR=.\results\intra_subjects_meg"
 
 REM
-for /l %%S in (2,1,10) do (
+for /l %%S in (1,1,4) do (
     set "SUB_ID=%%S"
 
     REM
     set "OUTPUT_NAME=sub-0!SUB_ID!"
-    if !SUB_ID! GEQ 10 set "OUTPUT_NAME=sub-!SUB_ID!"
+    if !SUB_ID! GEQ 4 set "OUTPUT_NAME=sub-!SUB_ID!"
 
     echo Training subject !SUB_ID!...
 
@@ -43,9 +43,7 @@ for /l %%S in (2,1,10) do (
         --output_dir "%OUTPUT_DIR%" ^
         --brain_area "%BRAIN_AREA%" ^
         --image_aug ^
-        --aug_image_feature_dirs ".\data\image_feature\RN50\GaussianBlur-GaussianNoise-LowResolution-Mosaic" ^
-        --eeg_aug ^
-        --eeg_aug_type "smooth" ^
+        --aug_image_feature_dirs ".\data\image_feature_meg\RN50\GaussianBlur-GaussianNoise-LowResolution-Mosaic" ^
         --image_test_aug ^
         --img_l2norm ^
         --projector "%PROJECTOR%" ^

@@ -82,8 +82,10 @@ class EEGPreImageDataset(Dataset):
                 # shape: (1654, 10, 63, 250)
                 eeg_data = np.mean(eeg_data, axis=2)
             # select channels
-            selected_idx = [self.all_channels.index(ch) for ch in self.selected_channels]
-            eeg_data = np.take(eeg_data, selected_idx, axis=-2)
+            if brain_area != 'all':
+                selected_idx = [self.all_channels.index(ch) for ch in self.selected_channels]
+                eeg_data = np.take(eeg_data, selected_idx, axis=-2)
+            self.channels_num = eeg_data.shape[-2]
             
             # Apply time window
             start, end = time_window

@@ -150,7 +150,7 @@ if __name__ == '__main__':
     train_dataset = dataset
     log(f'data length: {len(dataset)}')
 
-    dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=True, num_workers=12)
+    dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=True, num_workers=0)
     
     test_dataset = EEGPreImageDataset(args.test_subject_ids, args.eeg_data_dir, args.brain_area, args.time_window, args.image_feature_dir, args.text_feature_dir, args.image_aug, args.aug_image_feature_dirs, True, False, eeg_transform, False, args.image_test_aug, args.eeg_test_aug)
     test_dataloader = DataLoader(test_dataset, batch_size=200, shuffle=False)
@@ -163,7 +163,8 @@ if __name__ == '__main__':
     with open(os.path.join(writer.log_dir, "evaluate_config.json"), 'w') as f:
         json.dump(inference_config, f, indent=4)  # indent=4 让格式更美观
 
-    channels_num = len(dataset.selected_channels)
+    # channels_num = len(dataset.selected_channels)
+    channels_num = dataset.channels_num
     
     if args.eeg_encoder_type == 'ATM':
         model = ATMS(feature_dim=feature_dim, eeg_sample_points=eeg_sample_points, channels_num=channels_num)
