@@ -2,12 +2,12 @@
 set -e
 trap 'echo "Script Error"' ERR
 
-IMAGE_FEATURE_BASE_DIR="./data/image_feature"
+IMAGE_FEATURE_BASE_DIR="./data/things_eeg/image_feature"
 IMAGE_ENCODER_TYPE="RN50"
 IMAGE_FEATURE_DIR="${IMAGE_FEATURE_BASE_DIR}/${IMAGE_ENCODER_TYPE}"
 TEXT_FEATURE_DIR=""
-EEG_DATA_DIR="./data/preprocessed_eeg"
-DEVICE="cuda:0"
+EEG_DATA_DIR="./data/things_eeg/preprocessed_eeg"
+DEVICE="cuda:6"
 EEG_ENCODER_TYPE="EEGProject"
 BATCH_SIZE=1024
 LEARNING_RATE=1e-4
@@ -15,7 +15,7 @@ NUM_EPOCHS=50
 BRAIN_AREA="o+p"
 PROJECTOR="linear"
 FEATURE_DIM=512
-OUTPUT_DIR="./results/intra_subjects"
+OUTPUT_DIR="./results/things_eeg/intra_subjects"
 
 for SUB_ID in {1..10}
 do
@@ -36,7 +36,7 @@ do
         --output_dir "$OUTPUT_DIR" \
         --brain_area "$BRAIN_AREA" \
         --image_aug \
-        --aug_image_feature_dirs "./data/image_feature/RN50/GaussianBlur-GaussianNoise-LowResolution-Mosaic" \
+        --aug_image_feature_dirs "./data/things_eeg/image_feature/RN50/GaussianBlur-GaussianNoise-LowResolution-Mosaic" \
         --eeg_aug \
         --eeg_aug_type "smooth" \
         --image_test_aug \

@@ -20,7 +20,7 @@ def get_loop_range(_type, num, _id):
         sys.exit()
     return loop_range
 
-def mvnn(epoched_test, epoched_train):
+def mvnn(epoched_train, epoched_test):
     import numpy as np
     from tqdm import tqdm
     from sklearn.discriminant_analysis import _cov
@@ -101,9 +101,9 @@ def preprocess(data_path:str, data_part:str, channels_order, args, seed:int):
     del raw
     
     # Resampling
-    if args.rfreq > sfreq or args.rfreq <= 0:
+    if args.rfreq > sfreq or args.rfreq < 0:
         print("Invalid resampling frequence")
-    elif args.rfreq == sfreq:
+    elif args.rfreq == sfreq or args.rfreq == 0:
         print("No resampling")
     else:
         epochs.resample(args.rfreq)
@@ -222,13 +222,21 @@ def save_eeg_subject(ch_names, times, epoched_data, sub, output_dir):
 def zscore(train_data, test_data):
     train_mean = np.mean(train_data, axis=(2, 3), keepdims=True)
     train_std = np.std(train_data, axis=(2, 3), keepdims=True)
-    normalized_train_data = (train_data - train_mean) / train_std
     
-    test_mean = np.mean(test_data, axis=(2, 3), keepdims=True)
-    test_std = np.std(test_data, axis=(2, 3), keepdims=True)
-    normalized_test_data = (test_data - test_mean) / test_std
+    normalized_train_data = (train_data - train_mean) / train_std
+    normalized_test_data = (test_data - train_mean) / train_std
     
     return normalized_train_data, normalized_test_data
+
+# Z-score normalization channel-wise
+def zscore_channelwise(train_data, test_data):
+    # train_data: [Cnd, Rep, Ch, T]
+    axes = (0, 1, 3)  # over all trials & time, keep Ch
+    train_mean = train_data.mean(axis=axes, keepdims=True)
+    train_std  = train_data.std(axis=axes, keepdims=True)
+    eps = 1e-8
+    train_std = np.maximum(train_std, eps)
+    return (train_data - train_mean)/train_std, (test_data - train_mean)/train_std
 
 
 if __name__ == "__main__":
@@ -241,9 +249,9 @@ if __name__ == "__main__":
     parser.add_argument('--rfreq', default=250, type=int, help="resampling frequency, 0 means no resample")
     parser.add_argument('--baseline_duration', default=.2, type=float, help="duration for baseline correlation")
     parser.add_argument('--after_duration', default=1.0, type=float, help="duration after stimulus")
-    parser.add_argument('--image_dir', default='./data/image_set/training_images', type=str, help="image data directory")
-    parser.add_argument('--raw_data_dir', default='./data/raw_eeg', type=str, help="raw data directory")
-    parser.add_argument('--output_dir', default='./data/preprocessed_eeg', type=str, help="output directory")
+    parser.add_argument('--image_dir', default='./data/things_eeg/image_set/train_images', type=str, help="image data directory")
+    parser.add_argument('--raw_data_dir', default='./data/things_eeg/raw_eeg', type=str, help="raw data directory")
+    parser.add_argument('--output_dir', default='./data/things_eeg/preprocessed_eeg', type=str, help="output directory")
     parser.add_argument('--mvnn', action="store_true")
     parser.add_argument('--zscore', action="store_true")
     parser.add_argument("--seed", type=int, default=20200220, help="random seed for reproducible results")
@@ -289,9 +297,9 @@ if __name__ == "__main__":
             assert args.mvnn != args.zscore
             print("---Normalizing---")
             if args.mvnn:
-                train_data, test_data = mvnn(test_data, train_data)
+                train_data, test_data = mvnn(train_data, test_data)
             if args.zscore:
-                train_data, test_data = zscore(train_data, test_data)
+                train_data, test_data = zscore_channelwise(train_data, test_data)
             epoched_data['train'].append({"data": train_data, "img_conditions": train_img_conditions, "sub_id": sub})
             epoched_data['test'].append({"data": test_data, "img_conditions": test_img_conditions, "sub_id": sub})
         print("Saving...")

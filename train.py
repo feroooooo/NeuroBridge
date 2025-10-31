@@ -64,7 +64,7 @@ if __name__ == '__main__':
     parser.add_argument('--img_l2norm', action='store_true')
     parser.add_argument('--text_l2norm', action='store_true')
     parser.add_argument('--eeg_l2norm', action='store_true')
-    parser.add_argument('--eeg_data_dir', default='./data/eeg_preprocessed', type=str, help='where your EEG data are')
+    parser.add_argument('--eeg_data_dir', default='./things_eeg/data/preprocessed_eeg', type=str, help='where your EEG data are')
     parser.add_argument('--brain_area', type=str, choices=['all', 'o+p', 'o+p+t', 'o', 'p', 'c', 't', 'f'], default='all')
     parser.add_argument('--time_window', type=int, default=[0, 250], nargs=2, help='time window for EEG data, in sample points')
     parser.add_argument('--eeg_aug', action='store_true')
@@ -74,14 +74,14 @@ if __name__ == '__main__':
     parser.add_argument('--image_test_aug', action='store_true')
     parser.add_argument('--eeg_test_aug', action='store_true')
     
-    parser.add_argument('--image_data_dir', default='./data/image_set/train_images', type=str, help='where your image data are')
+    parser.add_argument('--image_data_dir', default='./data/things_eeg/image_set/train_images', type=str, help='where your image data are')
     
     parser.add_argument('--projector', type=str, choices=['direct', 'linear', 'mlp'], default='direct')
     parser.add_argument('--feature_dim', type=int, default=512, help='dont work when direct')
-    
-    parser.add_argument('--image_feature_dir', default='./data/image_feature/RN50', type=str, help='where your image feature are')
+
+    parser.add_argument('--image_feature_dir', default='./data/things_eeg/image_feature/RN50', type=str, help='where your image feature are')
     parser.add_argument('--aug_image_feature_dirs', default=[], nargs='+', type=str, help='where your augmentation image feature are')
-    parser.add_argument('--text_feature_dir', default='./data/text_feature/BLIP2', type=str, help='where your text feature are')
+    parser.add_argument('--text_feature_dir', default='./data/things_eeg/text_feature/BLIP2', type=str, help='where your text feature are')
 
     parser.add_argument('--save_weights', action='store_true', help='whether to save model weights')
     
@@ -126,6 +126,7 @@ if __name__ == '__main__':
     log(f'seed: {seed}')
 
     device = torch.device(args.device if torch.cuda.is_available() else 'cpu')
+    log(f'Using device: {device}')
 
     print('\n>>> Loading Data <<<')
     if args.eeg_aug:

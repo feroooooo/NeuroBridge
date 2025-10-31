@@ -4,7 +4,7 @@ import argparse
 import numpy as np
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--image_feature_dir", type=str, default="./data/image_feature/RN50")
+parser.add_argument("--image_feature_dir", type=str, default="./data/things_eeg/image_feature/RN50")
 parser.add_argument("--aug_type", type=str, nargs='+', default=["GaussianBlur", "GaussianNoise", "LowResolution", "Mosaic"], choices=["GaussianBlur", "GaussianNoise", "Mosaic", "RandomCrop", "LowResolution", "ColorJitter", "GrayScale", "None"])
 args = parser.parse_args()
 

@@ -10,7 +10,7 @@ This is the official implementation for NeuroBridge.
 
 Create conda environment:
 ```bash
-conda create -n neurobridge python==3.12.2
+conda create -n neurobridge python==3.12.2 -y
 conda activate neurobridge
 ```
 Install required depencencies:
@@ -19,16 +19,35 @@ pip install -r requirements.txt
 ```
 
 ## Data Preparation
-Download the Things-Image from the [OSF repository](https://osf.io/y63gw/files/osfstorage) and Things-EEG from the [OSF repository](https://osf.io/crxs4/). Organize the data according to the following directory structure:
+Download the Things-EEG from [OSF repository](https://osf.io/y63gw/files) (Image) and [OSF repository](https://osf.io/crxs4/) (EEG), Things-MEG from [OSF repository](https://osf.io/jum2f/files/rdxy2) (Image) and [OpenNeuro](https://openneuro.org/datasets/ds004212/versions/2.0.1) (MEG). Organize the data according to the following directory structure:
+
+Code for MEG preprocessing is Not yet available.
+
+Things-EEG (126G):
+
 ```
 data
-├── image_set
-│   ├── train_images
-│   └── test_images
-└── raw_eeg
-│   ├── sub-01
-│   ├── ...
-│   └── sub-10
+├── things_eeg    
+│   ├──image_set
+│   │   ├── train_images
+│   │   └── test_images
+│   └── raw_eeg
+│       ├── sub-01
+│       ├── ...
+│       └── sub-10
+```
+
+Things-MEG:
+
+```
+data
+├── things_eeg    
+│   ├──image_set
+│   │   └── object_images
+│   └── raw_eeg
+│       ├── P1_cosmofile.mat
+│       ├── ...
+│       └── preprocessed_P4-epo.fif
 ```
 
 ## Data Preprocessing
@@ -40,7 +59,7 @@ python preprocess.py --mvnn
 ## Extract Image Feature and Fuse
 Run the script below to extract image features using OpenCLIP:
 ```Bash
-/bin/bash scripts/image_feature_extract.sh
+/bin/bash scripts_sh/image_feature_extract.sh
 ```
 
 ## Run
@@ -48,11 +67,11 @@ To run the experiments using the provided configurations, execute the following 
 
 Intra-subject: train and test on one subject
 ```Bash
-/bin/bash scripts/intra-subjects.sh
+/bin/bash scripts_sh/intra-subjects.sh
 ```
 Inter-subject: leave one subject out for test
 ```Bash
-/bin/bash scripts/inter-subjects.sh
+/bin/bash scripts_sh/inter-subjects.sh
 ```
 
 ## Acknowledge
