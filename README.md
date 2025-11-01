@@ -27,7 +27,7 @@ Things-EEG (126G):
 
 ```
 data
-├── things_eeg    
+├── things_eeg
 │   ├──image_set
 │   │   ├── train_images
 │   │   └── test_images
@@ -37,11 +37,11 @@ data
 │       └── sub-10
 ```
 
-Things-MEG:
+Things-MEG (98G):
 
 ```
 data
-├── things_eeg    
+├── things_eeg
 │   ├──image_set
 │   │   └── object_images
 │   └── raw_eeg
