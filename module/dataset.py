@@ -21,7 +21,8 @@ class EEGPreImageDataset(Dataset):
         eeg_transform=None,
         train=True,
         image_test_aug=False,
-        eeg_test_aug=False
+        eeg_test_aug=False,
+        frozen_eeg_prior=False,
     ):
         super().__init__()
         self.subject_ids = subject_ids
@@ -35,6 +36,7 @@ class EEGPreImageDataset(Dataset):
         self.image_aug = image_aug
         self.image_test_aug = image_test_aug
         self.eeg_test_aug = eeg_test_aug
+        self.frozen_eeg_prior = frozen_eeg_prior
         
         self.all_channels = ['Fp1', 'Fp2', 'AF7', 'AF3', 'AFz', 'AF4', 'AF8', 'F7', 'F5', 'F3',
 				  'F1', 'F2', 'F4', 'F6', 'F8', 'FT9', 'FT7', 'FC5', 'FC3', 'FC1', 
@@ -92,6 +94,17 @@ class EEGPreImageDataset(Dataset):
             end = min(end, eeg_data.shape[-1])
             eeg_data = eeg_data[..., start:end]
             
+            # If it's the training set and a transform is specified, apply the EEG data transformation
+            if self.frozen_eeg_prior:
+                if self.eeg_transform is not None and (self.train or self.eeg_test_aug):
+                    for object_idx in range(eeg_data.shape[0]):
+                        for image_idx in range(eeg_data.shape[1]):
+                            if not self.average:
+                                for repetition_idx in range(eeg_data.shape[2]):
+                                    eeg_data[object_idx, image_idx, repetition_idx] = self.eeg_transform(eeg_data[object_idx, image_idx, repetition_idx])
+                            else:
+                                eeg_data[object_idx, image_idx] = self.eeg_transform(eeg_data[object_idx, image_idx])
+
             self.eeg_data_list.append(eeg_data)
         
         self.num_subjects = len(self.eeg_data_list)
@@ -173,8 +186,9 @@ class EEGPreImageDataset(Dataset):
             eeg_data = self.eeg_data_list[subject_idx][object_idx][image_idx][repetition_idx]
         
         # If it's the training set and a transform is specified, apply the EEG data transformation
-        if self.eeg_transform is not None and (self.train or self.eeg_test_aug):
-            eeg_data = self.eeg_transform(eeg_data)
+        if not self.frozen_eeg_prior:
+            if self.eeg_transform is not None and (self.train or self.eeg_test_aug):
+                eeg_data = self.eeg_transform(eeg_data)
         
         if self.image_aug:
             if self.train or self.image_test_aug:

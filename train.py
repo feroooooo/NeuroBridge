@@ -9,10 +9,8 @@ import time
 import torch
 import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
-from torch.utils.data import DataLoader, random_split
-from torchvision.transforms import Compose
+from torch.utils.data import DataLoader
 from tqdm import tqdm
-import open_clip
 import numpy as np
 import pandas as pd
 
@@ -73,6 +71,7 @@ if __name__ == '__main__':
     parser.add_argument('--image_aug', action='store_true')
     parser.add_argument('--image_test_aug', action='store_true')
     parser.add_argument('--eeg_test_aug', action='store_true')
+    parser.add_argument('--frozen_eeg_prior', action='store_true')
     
     parser.add_argument('--image_data_dir', default='./data/things_eeg/image_set/train_images', type=str, help='where your image data are')
     
@@ -123,8 +122,7 @@ if __name__ == '__main__':
     with open(os.path.join(args.output_dir, "last_run.txt"), 'w') as f:
         f.write(writer.log_dir)
         
-    log(f'seed: {seed}')
-
+    print("")
     device = torch.device(args.device if torch.cuda.is_available() else 'cpu')
     log(f'Using device: {device}')
 
@@ -141,7 +139,7 @@ if __name__ == '__main__':
     else:
         eeg_transform = None
     
-    dataset = EEGPreImageDataset(args.train_subject_ids, args.eeg_data_dir, args.brain_area, args.time_window, args.image_feature_dir, args.text_feature_dir, args.image_aug, args.aug_image_feature_dirs, args.data_average, args.data_random, eeg_transform, True, args.image_test_aug, args.eeg_test_aug)
+    dataset = EEGPreImageDataset(args.train_subject_ids, args.eeg_data_dir, args.brain_area, args.time_window, args.image_feature_dir, args.text_feature_dir, args.image_aug, args.aug_image_feature_dirs, args.data_average, args.data_random, eeg_transform, True, args.image_test_aug, args.eeg_test_aug, args.frozen_eeg_prior)
     
     eeg_sample_points = dataset.num_sample_points
     log(f'EEG sample points: {eeg_sample_points}')
@@ -153,7 +151,7 @@ if __name__ == '__main__':
 
     dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=True, num_workers=0)
     
-    test_dataset = EEGPreImageDataset(args.test_subject_ids, args.eeg_data_dir, args.brain_area, args.time_window, args.image_feature_dir, args.text_feature_dir, args.image_aug, args.aug_image_feature_dirs, True, False, eeg_transform, False, args.image_test_aug, args.eeg_test_aug)
+    test_dataset = EEGPreImageDataset(args.test_subject_ids, args.eeg_data_dir, args.brain_area, args.time_window, args.image_feature_dir, args.text_feature_dir, args.image_aug, args.aug_image_feature_dirs, True, False, eeg_transform, False, args.image_test_aug, args.eeg_test_aug, args.frozen_eeg_prior)
     test_dataloader = DataLoader(test_dataset, batch_size=200, shuffle=False)
     
     args_dict = vars(args)
@@ -162,7 +160,7 @@ if __name__ == '__main__':
     inference_config['eeg_sample_points'] = eeg_sample_points
     inference_config['feature_dim'] = feature_dim
     with open(os.path.join(writer.log_dir, "evaluate_config.json"), 'w') as f:
-        json.dump(inference_config, f, indent=4)  # indent=4 让格式更美观
+        json.dump(inference_config, f, indent=4)
 
     # channels_num = len(dataset.selected_channels)
     channels_num = dataset.channels_num

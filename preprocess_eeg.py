@@ -6,7 +6,6 @@ import random
 
 import mne
 import numpy as np
-import pandas as pd
 from sklearn.utils import shuffle
 
 # Calculate loop range of subjects and sessions
@@ -217,16 +216,6 @@ def save_eeg_subject(ch_names, times, epoched_data, sub, output_dir):
     save_pic.close()
     del train_dict
     del epoched_data
-    
-    
-def zscore(train_data, test_data):
-    train_mean = np.mean(train_data, axis=(2, 3), keepdims=True)
-    train_std = np.std(train_data, axis=(2, 3), keepdims=True)
-    
-    normalized_train_data = (train_data - train_mean) / train_std
-    normalized_test_data = (test_data - train_mean) / train_std
-    
-    return normalized_train_data, normalized_test_data
 
 # Z-score normalization channel-wise
 def zscore_channelwise(train_data, test_data):
@@ -249,7 +238,7 @@ if __name__ == "__main__":
     parser.add_argument('--rfreq', default=250, type=int, help="resampling frequency, 0 means no resample")
     parser.add_argument('--baseline_duration', default=.2, type=float, help="duration for baseline correlation")
     parser.add_argument('--after_duration', default=1.0, type=float, help="duration after stimulus")
-    parser.add_argument('--image_dir', default='./data/things_eeg/image_set/train_images', type=str, help="image data directory")
+    # parser.add_argument('--image_dir', default='./data/things_eeg/image_set/train_images', type=str, help="image data directory")
     parser.add_argument('--raw_data_dir', default='./data/things_eeg/raw_eeg', type=str, help="raw data directory")
     parser.add_argument('--output_dir', default='./data/things_eeg/preprocessed_eeg', type=str, help="output directory")
     parser.add_argument('--mvnn', action="store_true")
