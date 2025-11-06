@@ -1,6 +1,9 @@
 # NeuroBridge
-This is the official implementation for NeuroBridge.
+This is the official implementation for *NeuroBridge: Bio-Inspired Self-Supervised EEG-to-Image Decoding via Cognitive Priors and Bidirectional Semantic Alignment*.
+
 ![framework](./figure/framework.jpg)
+
+![framework](./figure/accuracy.jpg)
 
 ## Environment Setup
 
