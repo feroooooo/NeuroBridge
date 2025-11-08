@@ -12,6 +12,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--raw_data_dir', default='./data/things_meg', type=str, help="raw data directory")
     parser.add_argument('--output_dir', default='./data/things_meg', type=str, help="output directory")
+    parser.add_argument("--precision", default="fp32", type=str, choices=["fp64", "fp32", "fp16"], help="precision: float32 or float16")
     parser.add_argument('--zscore', action="store_true")
     args = parser.parse_args()
 
@@ -154,15 +155,25 @@ if __name__ == "__main__":
             print("Z-score normalization applied.")
 
         times = np.linspace(0, 0.995, 200)
+        
+        if args.precision == "fp16":
+            train_data = train_data.astype(np.float16)
+            test_data = test_data.astype(np.float16)
+        elif args.precision == "fp32":
+            train_data = train_data.astype(np.float32)
+            test_data = test_data.astype(np.float32)
+        elif args.precision == "fp64":
+            train_data = train_data.astype(np.float64)
+            test_data = test_data.astype(np.float64)
 
         train_dict = {
-            'data': train_data.astype(np.float32),
+            'data': train_data,
             'ch_names': [],
             'times': times
         }
 
         test_dict = {
-            'data': test_data.astype(np.float32),
+            'data': test_data,
             'ch_names': [],
             'times': times
         }

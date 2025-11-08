@@ -140,7 +140,7 @@ def preprocess(data_path:str, data_part:str, channels_order, args, seed:int):
 
 
 # Save EEG data in npy file, all data for a subject were saved into one file.
-def save_eeg_subject(ch_names, times, epoched_data, sub, output_dir):
+def save_eeg_subject(ch_names, times, epoched_data, sub, precision, output_dir):
 	### Merge and save the test data ###
     for s in range(len(epoched_data["test"])):
         if s == 0:
@@ -148,7 +148,12 @@ def save_eeg_subject(ch_names, times, epoched_data, sub, output_dir):
         else:
             merged_test = np.append(merged_test, epoched_data["test"][s]["data"], 1)
     # 200 * 80 * 63 * 250
-    merged_test = merged_test.astype(np.float32)
+    if precision == "fp16":
+        merged_test = merged_test.astype(np.float16)
+    elif precision == "fp32":
+        merged_test = merged_test.astype(np.float32)
+    elif precision == "fp64":
+        merged_test = merged_test.astype(np.float64)
     # reshape
     merged_test = merged_test.reshape(200, 1, 80, 63, 250)
     print("test data shape:", merged_test.shape)
@@ -195,7 +200,12 @@ def save_eeg_subject(ch_names, times, epoched_data, sub, output_dir):
         merged_train[i] = ordered_data
     
     # 16540 * 4 * 63 * 250
-    merged_train = merged_train.astype(np.float32)
+    if precision == "fp16":
+        merged_train = merged_train.astype(np.float16)
+    elif precision == "fp32":
+        merged_train = merged_train.astype(np.float32)
+    elif precision == "fp64":
+        merged_train = merged_train.astype(np.float64)
     # reshape
     merged_train = merged_train.reshape(1654, 10, 4, 63, 250)
     print("train data shape:", merged_train.shape)
@@ -243,6 +253,7 @@ if __name__ == "__main__":
     parser.add_argument('--output_dir', default='./data/things_eeg/preprocessed_eeg', type=str, help="output directory")
     parser.add_argument('--mvnn', action="store_true")
     parser.add_argument('--zscore', action="store_true")
+    parser.add_argument("--precision", default="fp32", type=str, choices=["fp64", "fp32", "fp16"], help="precision: float32 or float16")
     parser.add_argument("--seed", type=int, default=20200220, help="random seed for reproducible results")
     args = parser.parse_args()
 
@@ -292,4 +303,4 @@ if __name__ == "__main__":
             epoched_data['train'].append({"data": train_data, "img_conditions": train_img_conditions, "sub_id": sub})
             epoched_data['test'].append({"data": test_data, "img_conditions": test_img_conditions, "sub_id": sub})
         print("Saving...")
-        save_eeg_subject(ch_names, times, epoched_data, sub, args.output_dir)
+        save_eeg_subject(ch_names, times, epoched_data, sub, args.precision, args.output_dir)

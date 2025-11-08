@@ -100,7 +100,7 @@ python preprocess_eeg.py --mvnn
 
 ```Bash
 # Things-MEG
-python preprocess_meg.py
+python preprocess_meg.py --zscore
 ```
 
 ## Extract Image Feature and Fuse
