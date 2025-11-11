@@ -158,6 +158,7 @@ Inter-subject: leave one subject out for test
 
 # Citation
 Hope that our work will be helpful. I would appreciate it if you could cite our work in your paper. 😊
+
 ```bibtex
 @misc{zhang2025neurobridge,
   title={NeuroBridge: Bio-Inspired Self-Supervised EEG-to-Image Decoding via Cognitive Priors and Bidirectional Semantic Alignment}, 
@@ -171,4 +172,4 @@ Hope that our work will be helpful. I would appreciate it if you could cite our 
 ```
 
 # Contact
-For any inquiries or further information, feel free to contact us: wjzhang1218@163.com ✉️
+For any inquiries or further information, feel free to contact me: wjzhang1218@163.com ✉️
