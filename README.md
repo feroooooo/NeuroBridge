@@ -1,5 +1,12 @@
 # NeuroBridge
-This is the official implementation for *NeuroBridge: Bio-Inspired Self-Supervised EEG-to-Image Decoding via Cognitive Priors and Bidirectional Semantic Alignment*.
+This is the official implementation of *"NeuroBridge: Bio-Inspired Self-Supervised EEG-to-Image Decoding via Cognitive Priors and Bidirectional Semantic Alignment"* (AAAI 2026).
+
+<p align="center">
+  <a href="#">
+  <p align="center">
+    <a href='https://arxiv.org/abs/2511.06836'><img src='http://img.shields.io/badge/Paper-arxiv.2511.06836-B31B1B.svg'></a>
+  </p>
+</p>
 
 ![framework](./figure/framework.jpg)
 
