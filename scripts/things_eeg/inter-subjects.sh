@@ -57,4 +57,4 @@ do
         --seed 2025;
 done
 
-python average.py --result_dir "$OUTPUT_DIR";
+python compute_avg_results.py --result_dir "$OUTPUT_DIR";

@@ -41,6 +41,6 @@ avg_row['sub'] = 'Average'
 all_data = pd.concat([all_data, pd.DataFrame([avg_row])], ignore_index=True)
 
 # Save the merged result
-all_data.to_csv(os.path.join(args.result_dir, 'average.csv'), index=False)
+all_data.to_csv(os.path.join(args.result_dir, 'avg_results.csv'), index=False)
 
 print(all_data)

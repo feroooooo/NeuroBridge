@@ -3,8 +3,6 @@ This is the official implementation for *NeuroBridge: Bio-Inspired Self-Supervis
 
 ![framework](./figure/framework.jpg)
 
-![framework](./figure/accuracy.jpg)
-
 ## Environment Setup
 
 - Python 3.12.2
@@ -143,10 +141,27 @@ Inter-subject: leave one subject out for test
 /bin/bash scripts/things_meg/inter-subjects.sh
 ```
 
-## Acknowledge
+# Acknowledge
 - [A large and rich EEG dataset for modeling human visual object recognition](https://www.alegifford.com/projects/eeg_dataset/) [THINGS-EEG]
 - [THINGS-data, a multimodal collection of large-scale datasets for investigating object representations in human brain and behavior](https://elifesciences.org/articles/82580) [THINGS-MEG]
 - [Decoding Natural Images from EEG for Object Recognition](https://github.com/eeyhsong/NICE-EEG) [NICE, ICLR 2024]
 - [Visual Decoding and Reconstruction via EEG Embeddings with Guided Diffusion](https://github.com/dongyangli-del/EEG_Image_decode) [ATM, NeurIPS 2024]
 - [CognitionCapturer: Decoding Visual Stimuli From Human EEG Signal With Multimodal Information](https://github.com/XiaoZhangYES/CognitionCapturer) [CognitionCapturer, AAAI 2025]
 - [Bridging the Vision-Brain Gap with an Uncertainty-Aware Blur Prior](https://github.com/HaitaoWuTJU/Uncertainty-aware-Blur-Prior) [UBP, CVPR 2025]
+
+# Citation
+Hope that our work will be helpful. I would appreciate it if you could cite our work in your paper. 😊
+```bibtex
+@misc{zhang2025neurobridge,
+  title={NeuroBridge: Bio-Inspired Self-Supervised EEG-to-Image Decoding via Cognitive Priors and Bidirectional Semantic Alignment}, 
+  author={Wenjiang Zhang and Sifeng Wang and Yuwei Su and Xinyu Li and Chen Zhang and Suyu Zhong},
+  year={2025},
+  eprint={2511.06836},
+  archivePrefix={arXiv},
+  primaryClass={cs.CV},
+  url={https://arxiv.org/abs/2511.06836}, 
+}
+```
+
+# Contact
+For any inquiries or further information, feel free to contact us: wjzhang1218@163.com ✉️
