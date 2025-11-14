@@ -1,11 +1,12 @@
 import os
-import pickle
 import shutil
 import argparse
 
 import mne
 import pandas as pd
 import numpy as np
+
+from module.util import dump_pretty
 
 if __name__ == "__main__":
     # Get input arguments
@@ -42,6 +43,10 @@ if __name__ == "__main__":
     print(f"There are a total of {total_images} files in the image directory '{image_dir}'")
 
     for sub_id in range(1, 5):
+        if os.path.isdir(os.path.join(args.output_dir, 'sub-'+format(sub_id,'02'))) and sub_id != 4:
+            print(f"Subject {sub_id} already processed, skipping...")
+            continue
+        
         fif_file = os.path.join(meg_dir,f"preprocessed_P{sub_id}-epo.fif")
 
         def read_and_crop_epochs(fif_file):
@@ -54,11 +59,11 @@ if __name__ == "__main__":
         sorted_indices = np.argsort(epochs.events[:, 2])
         epochs = epochs[sorted_indices]
 
-        print(len(epochs.events))
+        print("Num of events:", len(epochs.events))
         # Verify the shape of the epochs data
         ch_names = epochs.ch_names
-        print(len(ch_names))
-        print(ch_names)
+        print("Num of Channels:", len(ch_names))
+        print("Channel Names:", ch_names)
 
         def filter_valid_epochs(epochs, exclude_event_id=999999):
             return epochs[epochs.events[:, 2] != exclude_event_id]
@@ -78,19 +83,13 @@ if __name__ == "__main__":
         training_epochs = valid_epochs[~np.isin(valid_epochs.events[:, 2], zs_event_ids)]
         # Verify the number of events in the training set
         print("Number of events in the training set:", len(training_epochs.events))
-        print(len(training_epochs.events))
 
         # Extract event IDs from the filtered training epochs
         training_event_ids = np.unique(training_epochs.events[:, 2])
 
-        # # Check for any overlap between zero-shot and training event IDs
-        # overlap_ids = np.intersect1d(zs_event_ids, training_event_ids)
-
-        # # Print the overlap, if any
-        # print("Overlapping Event IDs:", overlap_ids)
-
         zs_test_epochs = valid_epochs[np.isin(valid_epochs.events[:, 2], zs_event_ids)]
-        print(len(zs_test_epochs.events))
+        print("Number of events in the zero-shot test set:", len(zs_test_epochs.events))
+        
 
         zs_event_to_category_map = {}
         for i, event_id in enumerate(zs_event_ids):
@@ -142,9 +141,9 @@ if __name__ == "__main__":
             return final_data
 
         train_data = reshape_meg_data(training_epochs_filtered, train=True)
-        print(train_data.shape)
+        print("train data shape:", train_data.shape)
         test_data = reshape_meg_data(zs_test_epochs, train=False)
-        print(test_data.shape)
+        print("test data shape:", test_data.shape)
         
         if args.zscore:
             # zscore on train (channel wise)
@@ -166,30 +165,26 @@ if __name__ == "__main__":
             train_data = train_data.astype(np.float64)
             test_data = test_data.astype(np.float64)
 
-        train_dict = {
-            'data': train_data,
-            'ch_names': [],
-            'times': times
-        }
-
-        test_dict = {
-            'data': test_data,
-            'ch_names': [],
-            'times': times
-        }
-
         save_dir = os.path.join(args.output_dir, 'preprocessed_meg', 'sub-'+format(sub_id,'02'))
         os.makedirs(save_dir, exist_ok=True)
-        file_name_test = 'test.npy'
-        file_name_train = 'train.npy'
-
-        save_pic = open(os.path.join(save_dir, file_name_train), 'wb')
-        pickle.dump(train_dict, save_pic, protocol=4)
-        save_pic.close()
-
-        save_pic = open(os.path.join(save_dir, file_name_test), 'wb')
-        pickle.dump(test_dict, save_pic, protocol=4)
-        save_pic.close()
+        np.save(os.path.join(save_dir, 'train.npy'), train_data)
+        
+        np.save(os.path.join(save_dir, 'test.npy'), test_data)
+        
+    # save info file
+    info_dict = {
+        "ch_names": ch_names,
+        "times": times.tolist(),
+        "baseline_duration": 0.2,
+        "after_duration": 1.0,
+        "normalization": "zscore" if args.zscore else "none",
+        "sfreq": 200,
+        "precision": args.precision,
+        "train_data_shape": train_data.shape,
+        "test_data_shape": test_data.shape
+    }
+    with open(os.path.join(args.output_dir, 'preprocessed_meg', "info.json"), "w", encoding="utf-8") as f:
+        dump_pretty(info_dict, f, indent=4, ensure_ascii=False)
 
     ################################################################################
     # processing image files

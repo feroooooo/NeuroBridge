@@ -23,12 +23,14 @@ for aug in aug_list:
 
 train_feature = np.concatenate(train_feature, axis=0)
 test_feature = np.concatenate(test_feature, axis=0)
-print(train_feature.shape, test_feature.shape)
+print("train_feature before fuse:", train_feature.shape)
+print("test_feature before fuse:", test_feature.shape)
 
 train_feature = np.mean(train_feature, axis=0, keepdims=True)
 test_feature = np.mean(test_feature, axis=0, keepdims=True)
 
-print(train_feature.shape, test_feature.shape)
+print("train_feature after fuse:", train_feature.shape)
+print("test_feature after fuse:", test_feature.shape)
 
 os.makedirs(os.path.join(image_feature_dir, output_dir), exist_ok=True)
 np.save(os.path.join(image_feature_dir, output_dir, "train.npy"), train_feature)

@@ -48,6 +48,7 @@ do
         --aug_image_feature_dirs "./data/things_eeg/image_feature/RN50/GaussianBlur-GaussianNoise-LowResolution-Mosaic" \
         --eeg_aug \
         --eeg_aug_type "smooth" \
+        --frozen_eeg_prior \
         --image_test_aug \
         --img_l2norm \
         --projector "$PROJECTOR" \

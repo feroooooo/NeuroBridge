@@ -3,10 +3,13 @@ import os
 import sys
 import pickle
 import random
+import json
 
 import mne
 import numpy as np
 from sklearn.utils import shuffle
+
+from module.util import dump_pretty
 
 # Calculate loop range of subjects and sessions
 def get_loop_range(_type, num, _id):
@@ -140,42 +143,26 @@ def preprocess(data_path:str, data_part:str, channels_order, args, seed:int):
 
 
 # Save EEG data in npy file, all data for a subject were saved into one file.
-def save_eeg_subject(ch_names, times, epoched_data, sub, precision, output_dir):
+def save_eeg_subject(epoched_data, precision, output_dir):
+    # save_dir = os.path.join(output_dir, 'sub-'+format(sub,'02'))
 	### Merge and save the test data ###
     for s in range(len(epoched_data["test"])):
         if s == 0:
             merged_test = epoched_data["test"][0]["data"]
         else:
             merged_test = np.append(merged_test, epoched_data["test"][s]["data"], 1)
-    # 200 * 80 * 63 * 250
     if precision == "fp16":
         merged_test = merged_test.astype(np.float16)
     elif precision == "fp32":
         merged_test = merged_test.astype(np.float32)
     elif precision == "fp64":
         merged_test = merged_test.astype(np.float64)
+    # 200 * 80 * 63 * 250
     # reshape
     merged_test = merged_test.reshape(200, 1, 80, 63, 250)
     print("test data shape:", merged_test.shape)
-	# Insert the data into a dictionary
-    test_dict = {
-        'data': merged_test,
-        'ch_names': ch_names,
-        'times': times
-    }
-    del merged_test
-    # Saving directories
-    save_dir = os.path.join(output_dir, 'sub-'+format(sub,'02'))
-    file_name_test = 'test.npy'
-    file_name_train = 'train.npy'
-    # Create the directory if not existing and save the data
-    if os.path.isdir(save_dir) == False:
-        os.makedirs(save_dir)
-    # np.save(os.path.join(save_dir, file_name_test), test_dict)
-    save_pic = open(os.path.join(save_dir, file_name_test), 'wb')
-    pickle.dump(test_dict, save_pic, protocol=4)
-    save_pic.close()
-    del test_dict
+
+    np.save(os.path.join(output_dir, "test.npy"), merged_test)
 
     ### Merge and save the training data ###
     for s in range(len(epoched_data["train"])):
@@ -199,33 +186,18 @@ def save_eeg_subject(ch_names, times, epoched_data, sub, precision, output_dir):
                 ordered_data = np.append(ordered_data, white_data[idx[r]], 0)
         merged_train[i] = ordered_data
     
-    # 16540 * 4 * 63 * 250
     if precision == "fp16":
         merged_train = merged_train.astype(np.float16)
     elif precision == "fp32":
         merged_train = merged_train.astype(np.float32)
     elif precision == "fp64":
         merged_train = merged_train.astype(np.float64)
+    # 16540 * 4 * 63 * 250
     # reshape
     merged_train = merged_train.reshape(1654, 10, 4, 63, 250)
     print("train data shape:", merged_train.shape)
-    # Insert the data into a dictionary
-    train_dict = {
-        'data': merged_train,
-        'ch_names': ch_names,
-        'times': times
-    }
-    del merged_train
-    # Create the directory if not existing and save the data
-    if os.path.isdir(save_dir) == False:
-        os.makedirs(save_dir)
-    # np.save(os.path.join(save_dir, file_name_train),
-    # 	train_dict)
-    save_pic = open(os.path.join(save_dir, file_name_train), 'wb')
-    pickle.dump(train_dict, save_pic, protocol=4)
-    save_pic.close()
-    del train_dict
-    del epoched_data
+    
+    np.save(os.path.join(output_dir, "train.npy"), merged_train)
 
 # Z-score normalization channel-wise
 def zscore_channelwise(train_data, test_data):
@@ -248,7 +220,6 @@ if __name__ == "__main__":
     parser.add_argument('--rfreq', default=250, type=int, help="resampling frequency, 0 means no resample")
     parser.add_argument('--baseline_duration', default=.2, type=float, help="duration for baseline correlation")
     parser.add_argument('--after_duration', default=1.0, type=float, help="duration after stimulus")
-    # parser.add_argument('--image_dir', default='./data/things_eeg/image_set/train_images', type=str, help="image data directory")
     parser.add_argument('--raw_data_dir', default='./data/things_eeg/raw_eeg', type=str, help="raw data directory")
     parser.add_argument('--output_dir', default='./data/things_eeg/preprocessed_eeg', type=str, help="output directory")
     parser.add_argument('--mvnn', action="store_true")
@@ -279,6 +250,11 @@ if __name__ == "__main__":
 
     # Preprocess data of each subjects seperately
     for sub in sub_range:
+        # Check if the subject has been processed
+        if os.path.isdir(os.path.join(args.output_dir, 'sub-'+format(sub,'02'))) and sub != 10:
+            print(f"Subject {sub} already processed, skipping...")
+            continue
+
         epoched_data = {"train": [], "test": []}
         for ses in ses_range:
             # Load EEG data from file
@@ -303,4 +279,24 @@ if __name__ == "__main__":
             epoched_data['train'].append({"data": train_data, "img_conditions": train_img_conditions, "sub_id": sub})
             epoched_data['test'].append({"data": test_data, "img_conditions": test_img_conditions, "sub_id": sub})
         print("Saving...")
-        save_eeg_subject(ch_names, times, epoched_data, sub, args.precision, args.output_dir)
+        save_dir = os.path.join(args.output_dir, 'sub-'+format(sub,'02'))
+         # Create the directory if not existing and save the data
+        if os.path.isdir(save_dir) == False:
+            os.makedirs(save_dir)
+        save_eeg_subject(epoched_data, args.precision, save_dir)
+
+    # save ch_names and times as json
+    info_dict = {
+        "ch_names": ch_names,
+        "times": times.tolist(),
+        "baseline_duration": args.baseline_duration,
+        "after_duration": args.after_duration,
+        "normalization": "mvnn" if args.mvnn else "zscore",
+        "sfreq": train_freq,
+        "precision": args.precision,
+        "seed": args.seed,
+        "train_data_shape": epoched_data['train'][0]['data'].shape,
+        "test_data_shape": epoched_data['test'][0]['data'].shape
+    }
+    with open(os.path.join(args.output_dir, "info.json"), "w", encoding="utf-8") as f:
+        dump_pretty(info_dict, f, indent=4, ensure_ascii=False)

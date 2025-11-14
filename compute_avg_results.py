@@ -40,6 +40,14 @@ avg_row['sub'] = 'Average'
 # Add average row
 all_data = pd.concat([all_data, pd.DataFrame([avg_row])], ignore_index=True)
 
+# Sort by sub (numeric), keep 'Average' at bottom
+def extract_sub_num(x):
+    if x == "Average":
+        return float('inf')
+    return int(''.join(filter(str.isdigit, x)))  # 提取数字
+
+all_data = all_data.sort_values(by="sub", key=lambda col: col.map(extract_sub_num))
+
 # Save the merged result
 all_data.to_csv(os.path.join(args.result_dir, 'avg_results.csv'), index=False)
 

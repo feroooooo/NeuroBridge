@@ -43,7 +43,7 @@ data
 │       └── sub-10
 ```
 
-Things-MEG (13G)
+Things-MEG (36G)
 
 ```
 data
@@ -51,7 +51,7 @@ data
 │   ├── image_set
 │   │   └── object_images
 │   ├── raw_meg
-│   │   ├── preprocessed_P1-epo.fif
+│   │   ├── preprocessed_P1-epo-1.fif
 │   │   ├── ...
 │   │   └── preprocessed_P4-epo.fif
 │   ├── sourcedata
@@ -108,8 +108,8 @@ python preprocess_eeg.py --mvnn
 python preprocess_meg.py --zscore
 ```
 
-## Extract Image Feature and Fuse
-Run the script below to extract image features using OpenCLIP:
+## Image Feature Extracting and Fusing
+Run the script below to extract and fuse image features using OpenCLIP:
 
 ```Bash
 # Things-EEG

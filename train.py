@@ -5,6 +5,8 @@ from datetime import datetime
 import json
 import random
 import time
+import sys
+import shutil
 
 import torch
 import torch.optim as optim
@@ -94,6 +96,17 @@ if __name__ == '__main__':
         log_dir = os.path.join(args.output_dir, f"{datetime.now().strftime(r'%Y%m%d-%H%M%S')}-{args.output_name}")
     else:
         log_dir = os.path.join(args.output_dir, datetime.now().strftime(r'%Y%m%d-%H%M%S'))
+        
+    log_dir_suffix = '-'.join(log_dir.split('-')[2:])
+    if os.path.exists(args.output_dir):
+        for existing_dir in os.listdir(args.output_dir):
+            if existing_dir.endswith(log_dir_suffix):
+                if os.path.exists(os.path.join(args.output_dir, existing_dir, "result.csv")):
+                    print(f"Experiment with the same name '{log_dir_suffix}' already exists. Exiting to avoid overwriting.")
+                    sys.exit(0)
+                else:
+                    shutil.rmtree(os.path.join(args.output_dir, existing_dir))
+                    print(f"Removed incomplete experiment directory '{existing_dir}' to avoid conflicts.")
 
     writer = SummaryWriter(log_dir=log_dir)
     

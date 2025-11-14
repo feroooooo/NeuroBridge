@@ -1,6 +1,7 @@
 import os
 from PIL import Image
 import argparse
+import sys
 
 import numpy as np
 from torchvision import transforms
@@ -110,6 +111,11 @@ if __name__ == "__main__":
     print('Input arguments:')
     for key, val in vars(args).items():
         print(f'{key:22} {val}')
+    
+    # Check if output directory exists
+    if os.path.exists(args.output_dir):
+       print(f"Output directory {args.output_dir} already exists, skipping feature extraction...")
+       sys.exit(0) 
 
     device = torch.device(args.device if torch.cuda.is_available() else 'cpu')
 
@@ -118,7 +124,6 @@ if __name__ == "__main__":
         processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
     elif args.model_type == "open_clip":
         model, _, processor = open_clip.create_model_and_transforms(args.backbone, pretrained=args.pretrained, precision='fp32', device=device)
-        # model, _, processor = open_clip.create_model_and_transforms('ViT-g-14', pretrained='laion2b_s34b_b88k', precision='fp32', device=device)
     elif args.model_type == "dinov2":
         # small base large giant
         processor = AutoImageProcessor.from_pretrained("facebook/dinov2-giant")
