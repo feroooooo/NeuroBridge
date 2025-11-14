@@ -73,7 +73,7 @@ The EEG and MEG data can be obtained using the provided download scripts, wherea
 ```
 **Optional:**
 
-We also provide preprocessed EEG and MEG data, as well as extracted image features that can be directly used for model training, which are available for download at (Coming soon).
+We also provide preprocessed EEG and MEG data, as well as extracted image features that can be directly used for model training, which are available for download at [Baidu Netdisk](https://pan.baidu.com/s/1YeE_fbqK2NOnZub_l7umiw?pwd=u5aq) or HuggingFace (Coming soon).
 
 Organize the preprocessed data according to the following directory structure:
 
