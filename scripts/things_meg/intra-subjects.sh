@@ -12,7 +12,7 @@ EEG_ENCODER_TYPE="EEGProject"
 BATCH_SIZE=1024
 LEARNING_RATE=1e-4
 NUM_EPOCHS=50
-BRAIN_AREA="all"
+SELECTED_CHANNELS=()
 PROJECTOR="linear"
 FEATURE_DIM=512
 OUTPUT_DIR="./results/things_meg/intra_subjects"
@@ -34,7 +34,7 @@ do
         --eeg_data_dir "$EEG_DATA_DIR" \
         --device "$DEVICE"  \
         --output_dir "$OUTPUT_DIR" \
-        --brain_area "$BRAIN_AREA" \
+        --selected_channels "${SELECTED_CHANNELS[@]}" \
         --image_aug \
         --aug_image_feature_dirs "./data/things_meg/image_feature/RN50/GaussianBlur-GaussianNoise-LowResolution-Mosaic" \
         --eeg_aug \

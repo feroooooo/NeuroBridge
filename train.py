@@ -65,7 +65,7 @@ if __name__ == '__main__':
     parser.add_argument('--text_l2norm', action='store_true')
     parser.add_argument('--eeg_l2norm', action='store_true')
     parser.add_argument('--eeg_data_dir', default='./things_eeg/data/preprocessed_eeg', type=str, help='where your EEG data are')
-    parser.add_argument('--brain_area', type=str, choices=['all', 'o+p', 'o+p+t', 'o', 'p', 'c', 't', 'f'], default='all')
+    parser.add_argument("--selected_channels", default=[], nargs='*', type=str, help="selected EEG channels, empty means all channels")
     parser.add_argument('--time_window', type=int, default=[0, 250], nargs=2, help='time window for EEG data, in sample points')
     parser.add_argument('--eeg_aug', action='store_true')
     parser.add_argument('--eeg_aug_type', type=str, choices=['noise', 'time_shift', 'channel_dropout', 'smooth'], default='noise', help='eeg augmentation type')
@@ -73,7 +73,7 @@ if __name__ == '__main__':
     parser.add_argument('--image_aug', action='store_true')
     parser.add_argument('--image_test_aug', action='store_true')
     parser.add_argument('--eeg_test_aug', action='store_true')
-    parser.add_argument('--frozen_eeg_prior', action='store_true')
+    parser.add_argument('--frozen_eeg_prior', action='store_true', help='whether to use frozen eeg prior')
     
     parser.add_argument('--image_data_dir', default='./data/things_eeg/image_set/train_images', type=str, help='where your image data are')
     
@@ -139,7 +139,7 @@ if __name__ == '__main__':
     device = torch.device(args.device if torch.cuda.is_available() else 'cpu')
     log(f'Using device: {device}')
 
-    print('\n>>> Loading Data <<<')
+    print('\n>>> Loading Train Data <<<')
     if args.eeg_aug:
         if args.eeg_aug_type == 'noise':
             eeg_transform = RandomGaussianNoise(std=0.001)
@@ -152,19 +152,21 @@ if __name__ == '__main__':
     else:
         eeg_transform = None
     
-    dataset = EEGPreImageDataset(args.train_subject_ids, args.eeg_data_dir, args.brain_area, args.time_window, args.image_feature_dir, args.text_feature_dir, args.image_aug, args.aug_image_feature_dirs, args.data_average, args.data_random, eeg_transform, True, args.image_test_aug, args.eeg_test_aug, args.frozen_eeg_prior)
+    train_dataset = EEGPreImageDataset(args.train_subject_ids, args.eeg_data_dir, args.selected_channels, args.time_window, args.image_feature_dir, args.text_feature_dir, args.image_aug, args.aug_image_feature_dirs, args.data_average, args.data_random, eeg_transform, True, args.image_test_aug, args.eeg_test_aug, args.frozen_eeg_prior)
     
-    eeg_sample_points = dataset.num_sample_points
+    eeg_sample_points = train_dataset.num_sample_points
     log(f'EEG sample points: {eeg_sample_points}')
-    feature_dim = dataset.image_features.shape[-1]
+    feature_dim = train_dataset.image_features.shape[-1]
     log(f'feature dimension: {feature_dim}')
 
-    train_dataset = dataset
-    log(f'data length: {len(dataset)}')
+    log(f'data length: {len(train_dataset)}')
+    channels_num = train_dataset.channels_num
+    log(f'number of channels: {channels_num}')
 
     dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=True, num_workers=0)
     
-    test_dataset = EEGPreImageDataset(args.test_subject_ids, args.eeg_data_dir, args.brain_area, args.time_window, args.image_feature_dir, args.text_feature_dir, args.image_aug, args.aug_image_feature_dirs, True, False, eeg_transform, False, args.image_test_aug, args.eeg_test_aug, args.frozen_eeg_prior)
+    print('\n>>> Loading Test Data <<<')
+    test_dataset = EEGPreImageDataset(args.test_subject_ids, args.eeg_data_dir, args.selected_channels, args.time_window, args.image_feature_dir, args.text_feature_dir, args.image_aug, args.aug_image_feature_dirs, True, False, eeg_transform, False, args.image_test_aug, args.eeg_test_aug, args.frozen_eeg_prior)
     test_dataloader = DataLoader(test_dataset, batch_size=200, shuffle=False)
     
     args_dict = vars(args)
@@ -174,9 +176,6 @@ if __name__ == '__main__':
     inference_config['feature_dim'] = feature_dim
     with open(os.path.join(writer.log_dir, "evaluate_config.json"), 'w') as f:
         json.dump(inference_config, f, indent=4)
-
-    # channels_num = len(dataset.selected_channels)
-    channels_num = dataset.channels_num
     
     if args.eeg_encoder_type == 'ATM':
         model = ATMS(feature_dim=feature_dim, eeg_sample_points=eeg_sample_points, channels_num=channels_num)

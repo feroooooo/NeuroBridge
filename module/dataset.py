@@ -12,7 +12,7 @@ class EEGPreImageDataset(Dataset):
         self, 
         subject_ids: list[int], 
         eeg_data_dir: str,
-        brain_area:str,
+        selected_channels: list[str],
         time_window: list[int],
         image_feature_dir: str,
         text_feature_dir: str,
@@ -41,41 +41,19 @@ class EEGPreImageDataset(Dataset):
         self.frozen_eeg_prior = frozen_eeg_prior
         
         self.info = json.load(open(os.path.join(eeg_data_dir, "info.json"), 'r'))
+        
+        # Things-EEG
+        # o+p: ['P7', 'P5', 'P3', 'P1','Pz', 'P2', 'P4', 'P6', 'P8', 'PO7', 'PO3', 'POz', 'PO4', 'PO8','O1', 'Oz', 'O2']
+        # o+p+t: ['P7', 'P5', 'P3', 'P1','Pz', 'P2', 'P4', 'P6', 'P8', 'PO7', 'PO3', 'POz', 'PO4', 'PO8','O1', 'Oz', 'O2', 'FT9', 'FT7', 'FT8', 'FT10', 'T7', 'T8', 'TP7', 'TP9', 'TP10', 'TP8']
+        # f: ['Fp1', 'Fp2', 'AF7', 'AF3', 'AFz', 'AF4', 'AF8', 'F7', 'F5', 'F3', 'F1', 'Fz', 'F2', 'F4', 'F6', 'F8']
+        # c: ['C5', 'C3', 'C1', 'Cz', 'C2', 'C4', 'C6']
+        # t: ['FT9', 'FT7', 'FT8', 'FT10', 'T7', 'T8']
+        # o: ['PO7', 'PO3', 'POz', 'PO4', 'PO8','O1', 'Oz', 'O2']
+        # p: ['P7', 'P5', 'P3', 'P1','Pz', 'P2', 'P4', 'P6', 'P8']
         self.all_channels = self.info['ch_names']
         
-        # self.all_channels = ['Fp1', 'Fp2', 'AF7', 'AF3', 'AFz', 'AF4', 'AF8', 'F7', 'F5', 'F3',
-		# 		  'F1', 'F2', 'F4', 'F6', 'F8', 'FT9', 'FT7', 'FC5', 'FC3', 'FC1', 
-		# 		  'FCz', 'FC2', 'FC4', 'FC6', 'FT8', 'FT10', 'T7', 'C5', 'C3', 'C1',
-		# 		  'Cz', 'C2', 'C4', 'C6', 'T8', 'TP9', 'TP7', 'CP5', 'CP3', 'CP1', 
-		# 		  'CPz', 'CP2', 'CP4', 'CP6', 'TP8', 'TP10', 'P7', 'P5', 'P3', 'P1',
-		# 		  'Pz', 'P2', 'P4', 'P6', 'P8', 'PO7', 'PO3', 'POz', 'PO4', 'PO8',
-		# 		  'O1', 'Oz', 'O2']
-
-        if brain_area == 'all':
-            self.selected_channels = self.all_channels
-        # Occipital + Parietal
-        elif brain_area == 'o+p':
-            self.selected_channels = ['P7', 'P5', 'P3', 'P1','Pz', 'P2', 'P4', 'P6', 'P8', 'PO7', 'PO3', 'POz', 'PO4', 'PO8','O1', 'Oz', 'O2']
-        elif brain_area == 'o+p+t':
-            self.selected_channels = ['P7', 'P5', 'P3', 'P1','Pz', 'P2', 'P4', 'P6', 'P8', 'PO7', 'PO3', 'POz', 'PO4', 'PO8','O1', 'Oz', 'O2', 'FT9', 'FT7', 'FT8', 'FT10', 'T7', 'T8', 'TP7', 'TP9', 'TP10', 'TP8']
-        # Frontal
-        elif brain_area == 'f':
-            self.selected_channels = ['Fp1', 'Fp2', 'AF7', 'AF3', 'AFz', 'AF4', 'AF8', 'F7', 'F5', 'F3', 'F1', 'Fz', 'F2', 'F4', 'F6', 'F8']
-        # Central
-        elif brain_area == 'c':
-            self.selected_channels = ['C5', 'C3', 'C1', 'Cz', 'C2', 'C4', 'C6']
-        # Temporal
-        elif brain_area == 't':
-            self.selected_channels = ['FT9', 'FT7', 'FT8', 'FT10', 'T7', 'T8']
-        # Occipital
-        elif brain_area == 'o':
-            self.selected_channels = ['PO7', 'PO3', 'POz', 'PO4', 'PO8','O1', 'Oz', 'O2']
-        # Parietal
-        elif brain_area == 'p':
-            self.selected_channels = ['P7', 'P5', 'P3', 'P1','Pz', 'P2', 'P4', 'P6', 'P8']
-        
         self.eeg_data_list = []
-        for subject_id in tqdm(subject_ids):
+        for subject_id in tqdm(subject_ids, desc="Subjects", position=0):
             subject_dir = os.path.join(eeg_data_dir, f"sub-{subject_id:02}")
             if train:
                 eeg_data_path = os.path.join(subject_dir, "train.npy")
@@ -88,8 +66,8 @@ class EEGPreImageDataset(Dataset):
                 # shape: (1654, 10, 63, 250)
                 eeg_data = np.mean(eeg_data, axis=2)
             # select channels
-            if brain_area != 'all':
-                selected_idx = [self.all_channels.index(ch) for ch in self.selected_channels]
+            if len(selected_channels) > 0:
+                selected_idx = [self.all_channels.index(ch) for ch in selected_channels]
                 eeg_data = np.take(eeg_data, selected_idx, axis=-2)
             self.channels_num = eeg_data.shape[-2]
             
@@ -101,7 +79,7 @@ class EEGPreImageDataset(Dataset):
             # If it's the training set and a transform is specified, apply the EEG data transformation
             if self.frozen_eeg_prior:
                 if self.eeg_transform is not None and (self.train or self.eeg_test_aug):
-                    for object_idx in range(eeg_data.shape[0]):
+                    for object_idx in tqdm(range(eeg_data.shape[0]), desc="Objects", position=1, leave=False):
                         for image_idx in range(eeg_data.shape[1]):
                             if not self.average:
                                 for repetition_idx in range(eeg_data.shape[2]):
