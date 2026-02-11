@@ -143,7 +143,7 @@ def preprocess(data_path:str, data_part:str, channels_order, args, seed:int):
 # Save EEG data in npy file, all data for a subject were saved into one file.
 def save_eeg_subject(epoched_data, precision, output_dir):
     # save_dir = os.path.join(output_dir, 'sub-'+format(sub,'02'))
-	### Merge and save the test data ###
+    ### Merge and save the test data ###
     for s in range(len(epoched_data["test"])):
         if s == 0:
             merged_test = epoched_data["test"][0]["data"]
@@ -196,6 +196,7 @@ def save_eeg_subject(epoched_data, precision, output_dir):
     print("train data shape:", merged_train.shape)
     
     np.save(os.path.join(output_dir, "train.npy"), merged_train)
+    return merged_train.shape, merged_test.shape
 
 # Z-score normalization channel-wise
 def zscore_channelwise(train_data, test_data):
@@ -285,7 +286,7 @@ if __name__ == "__main__":
          # Create the directory if not existing and save the data
         if os.path.isdir(save_dir) == False:
             os.makedirs(save_dir)
-        save_eeg_subject(epoched_data, args.precision, save_dir)
+        merged_train_shape, merged_test_shape = save_eeg_subject(epoched_data, args.precision, save_dir)
 
     times = np.round(times, 3)
     # save ch_names and times as json
@@ -298,8 +299,8 @@ if __name__ == "__main__":
         "sfreq": train_freq,
         "precision": args.precision,
         "seed": args.seed,
-        "train_data_shape": epoched_data['train'][0]['data'].shape,
-        "test_data_shape": epoched_data['test'][0]['data'].shape
+        "train_data_shape": merged_train_shape,
+        "test_data_shape": merged_test_shape
     }
     with open(os.path.join(args.output_dir, "info.json"), "w", encoding="utf-8") as f:
         dump_pretty(info_dict, f, indent=4, ensure_ascii=False)
