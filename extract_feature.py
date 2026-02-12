@@ -105,7 +105,8 @@ if __name__ == "__main__":
     parser.add_argument("--image_set_dir", type=str, default="./data/things_eeg/image_set")
     parser.add_argument("--output_dir", type=str, default="./data/things_eeg/image_feature/RN50")
     parser.add_argument("--aug_type", type=str, default="None", choices=["GaussianBlur", "GaussianNoise", "Mosaic", "RandomCrop", "LowResolution", "ColorJitter", "GrayScale", "None"])
-    parser.add_argument("--num_images_per_object", type=int, default=10)
+    parser.add_argument("--num_images_per_object_train", type=int, default=10)
+    parser.add_argument("--num_images_per_object_test", type=int, default=1)
     args = parser.parse_args()
     
     print('Input arguments:')
@@ -153,26 +154,26 @@ if __name__ == "__main__":
     os.makedirs(args.output_dir, exist_ok=True)
     
     if augmentation is None:
-        train_image_features = extract_image_features(os.path.join(args.image_set_dir, "train_images"), args.num_images_per_object, processor, model, args.model_type, augmentation, device)
+        train_image_features = extract_image_features(os.path.join(args.image_set_dir, "train_images"), args.num_images_per_object_train, processor, model, args.model_type, augmentation, device)
         print(f"Train image feature shape: {train_image_features.shape}")
         np.save(os.path.join(args.output_dir, "image_train.npy"), train_image_features)
     else:
         train_image_features_list = []
         for i in range(args.repeat_times):
-            train_image_features = extract_image_features(os.path.join(args.image_set_dir, "train_images"), args.num_images_per_object, processor, model, args.model_type, augmentation, device)
+            train_image_features = extract_image_features(os.path.join(args.image_set_dir, "train_images"), args.num_images_per_object_train, processor, model, args.model_type, augmentation, device)
             train_image_features_list.append(train_image_features)
         train_image_features = np.stack(train_image_features_list, axis=0)
         print(f"Train image feature shape: {train_image_features.shape}")
         np.save(os.path.join(args.output_dir, "train.npy"), train_image_features)
     
     if augmentation is None:
-        test_image_features = extract_image_features(os.path.join(args.image_set_dir, "test_images"), 1, processor, model, args.model_type, augmentation, device)
+        test_image_features = extract_image_features(os.path.join(args.image_set_dir, "test_images"), args.num_images_per_object_test, processor, model, args.model_type, augmentation, device)
         print(f"Test image feature shape: {test_image_features.shape}")
         np.save(os.path.join(args.output_dir, "image_test.npy"), test_image_features)
     else:
         test_image_features_list = []
         for i in range(args.repeat_times):
-            test_image_features = extract_image_features(os.path.join(args.image_set_dir, "test_images"), 1, processor, model, args.model_type, augmentation, device)
+            test_image_features = extract_image_features(os.path.join(args.image_set_dir, "test_images"), args.num_images_per_object_test, processor, model, args.model_type, augmentation, device)
             test_image_features_list.append(test_image_features)
         test_image_features = np.stack(test_image_features_list, axis=0)
         print(f"Test image feature shape: {test_image_features.shape}")
