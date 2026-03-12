@@ -195,4 +195,4 @@ Hope that our work will be helpful. I would appreciate it if you could cite our 
 ```
 
 # Contact
-For any inquiries or further information, feel free to contact me: feronlwj@gmail.com ✉️
+For any inquiries or further information, feel free to contact me: wjzhang@bupt.edu.cn ✉️
