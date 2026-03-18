@@ -183,14 +183,14 @@ python analysis/draw_similarity_matrix.py --checkpoint_path "intra-subjects_sub-
 Hope that our work will be helpful. I would appreciate it if you could cite our work in your paper. 😊
 
 ```bibtex
-@misc{zhang2025neurobridge,
-  title={NeuroBridge: Bio-Inspired Self-Supervised EEG-to-Image Decoding via Cognitive Priors and Bidirectional Semantic Alignment}, 
-  author={Wenjiang Zhang and Sifeng Wang and Yuwei Su and Xinyu Li and Chen Zhang and Suyu Zhong},
-  year={2025},
-  eprint={2511.06836},
-  archivePrefix={arXiv},
-  primaryClass={cs.CV},
-  url={https://arxiv.org/abs/2511.06836}, 
+@inproceedings{zhang2026neurobridge,
+  title={NeuroBridge: Bio-Inspired Self-Supervised EEG-to-Image Decoding via Cognitive Priors and Bidirectional Semantic Alignment},
+  author={Zhang, Wenjiang and Wang, Sifeng and Su, Yuwei and Li, Xinyu and Zhang, Chen and Zhong, Suyu},
+  booktitle={Proceedings of the AAAI Conference on Artificial Intelligence},
+  year={2026},
+  volume={40},
+  doi={10.1609/aaai.v40i21.38863},
+  pages={18028--18036}
 }
 ```
 
