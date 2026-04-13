@@ -93,7 +93,7 @@ Things-MEG
 
 ```
 data
-├── things_eeg
+├── things_meg
 │   ├── preprocessed_meg
 │   └── image_feature
 ```
