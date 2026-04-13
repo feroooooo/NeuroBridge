@@ -47,7 +47,7 @@ Things-MEG (36G)
 
 ```
 data
-├── things_eeg
+├── things_meg
 │   ├── image_set
 │   │   └── object_images
 │   ├── raw_meg
