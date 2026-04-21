@@ -111,6 +111,8 @@ python preprocess_eeg.py --mvnn
 python preprocess_meg.py --zscore
 ```
 
+💡 **Tip:** Use `--precision fp16` to reduce both storage and in-memory footprint by saving data in half precision, typically with negligible impact.
+
 ## Image Feature Extracting and Fusing
 Run the script below to extract and fuse image features using OpenCLIP:
 
@@ -151,8 +153,7 @@ Inter-subject: leave one subject out for test
 /bin/bash scripts/things_meg/inter-subjects.sh
 ```
 
-> **Tip**  
-> Disabling the EEG Prior can significantly speed up training, with only a marginal impact on model performance.
+💡 **Tip:** Disabling the EEG Prior can significantly speed up training, with only a marginal impact on model performance.
 
 To remove EEG Prior, disable the following flags:
 ```bash
