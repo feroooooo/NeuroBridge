@@ -151,6 +151,16 @@ Inter-subject: leave one subject out for test
 /bin/bash scripts/things_meg/inter-subjects.sh
 ```
 
+> **Tip**  
+> Disabling the EEG Prior can significantly speed up training, with only a marginal impact on model performance.
+
+To remove EEG Prior, disable the following flags:
+```bash
+# --eeg_aug \
+# --eeg_aug_type "smooth" \
+# --frozen_eeg_prior \
+```
+
 ## Analysis
 
 Set python environment path:
