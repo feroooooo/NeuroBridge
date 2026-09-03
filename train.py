@@ -95,7 +95,11 @@ if __name__ == '__main__':
     else:
         log_dir = os.path.join(args.output_dir, datetime.now().strftime(r'%Y%m%d-%H%M%S'))
         
-    log_dir_suffix = '-'.join(log_dir.split('-')[2:])
+    log_dir_suffix = (
+        os.path.basename(log_dir).split('-', 2)[2]
+        if args.output_name is not None
+        else os.path.basename(log_dir)
+    )
     if os.path.exists(args.output_dir):
         for existing_dir in os.listdir(args.output_dir):
             if existing_dir.endswith(log_dir_suffix):
